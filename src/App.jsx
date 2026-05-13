@@ -237,14 +237,8 @@ export default function App() {
               )}
             </Field>
             <Field label="유사 제품 사용 경험" required hint="현재 사용 중이거나 이전에 사용한 보안 분석 도구" fieldKey="priorExperience">
-              <Select value={form.priorExperience} onChange={v => set('priorExperience', v)} options={SELECT_OPTIONS.priorExperience} />
+              <Select value={form.priorExperience} onChange={v => set('priorExperience', v)} options={['있음', '없음']} />
               {errors.priorExperience && <p className="error-msg">{errors.priorExperience}</p>}
-              {form.priorExperience === '기타(직접 입력)' && (
-                <div style={{ marginTop: 8 }}>
-                  <input data-field="priorEtc" className={`input${errors.priorEtc ? ' input-error' : ''}`} value={form.priorEtc} onChange={e => set('priorEtc', e.target.value)} placeholder="직접 입력해주세요" />
-                  {errors.priorEtc && <p className="error-msg">{errors.priorEtc}</p>}
-                </div>
-              )}
             </Field>
           </div>
         </section>
