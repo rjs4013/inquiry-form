@@ -54,14 +54,14 @@ body {
 .section-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  /* gap: 10px; */
   margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 1px solid #f0f0f0;
 }
 .section-icon { font-size: 18px; }
 .section-title {
-  font-size: 15px;
+  font-size: 21px;
   font-weight: 600;
   color: #111;
 }
@@ -346,3 +346,71 @@ select.input {
   transition: background 0.15s;
 }
 .btn-secondary:hover { background: #f5f6f8; }
+
+/* Inquiry type cards */
+.inquiry-type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 4px;
+}
+.inquiry-type-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px 10px;
+  border: 1.5px solid #dde0e4;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #444;
+  background: #fafbfc;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  line-height: 1.4;
+}
+.inquiry-type-card:hover {
+  border-color: #2d7a4f;
+  background: #f0f7f3;
+  color: #1e5c38;
+}
+.inquiry-type-card.selected {
+  border-color: #1e5c38;
+  background: #1e5c38;
+  color: #fff;
+  font-weight: 600;
+}
+@media (max-width: 560px) {
+  .inquiry-type-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Multi select dropdown style */
+.multi-select {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #dde0e4;
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.multi-option {
+  padding: 9px 12px;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 0.5px solid #f0f0f0;
+  user-select: none;
+}
+.multi-option:last-child { border-bottom: none; }
+.multi-option:hover { background: #f5f7f5; }
+.multi-option.selected {
+  background: #f0f7f3;
+  color: #1e5c38;
+  font-weight: 500;
+}
+.multi-option.selected::before {
+  content: '✓ ';
+  font-weight: 700;
+}
