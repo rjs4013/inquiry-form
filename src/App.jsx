@@ -1,19 +1,20 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import './App.css'
 
 const SELECT_OPTIONS = {
   inquiryType: ['견적 및 도입 문의', '유지보수 문의', '기술지원 문의', '마케팅 및 제휴 문의', '교육 문의', '기타'],
   industry: ['IT/SaaS', '제조·물류', '금융·보험', '공공기관', '유통·커머스', '기타(직접 입력)'],
-  vcsTools: ['GitHub', 'GitLab', 'Bitbucket', 'SVN', 'Azure DevOps', '기타(직접 입력)', '없음'],
-  ciTools: ['Jenkins', 'GitLab CI', 'GitHub Actions', 'CircleCI', 'TeamCity', 'Azure Pipelines', '기타(직접 입력)', '없음'],
-  priorExperience: ['있음', '없음'],
-  timeline: ['즉시', '1~3개월 내', '3~6개월 내', '6개월 이후', '미정'],
+  vcsTools: ['없음', 'GitHub', 'GitLab', 'Bitbucket', 'SVN', '기타(직접 입력)'],
+  ciTools: ['없음', 'Jenkins', 'GitLab CI', 'GitHub Actions', 'Azure Pipelines', '기타(직접 입력)'],
+  priorExperience: ['없음', '있음'],
+  timeline: ['미정', '즉시', '1~3개월 내', '3~6개월 내', '6개월 이후'],
   products: [
     'Sparrow SAST', 'Sparrow SCA', 'Sparrow DAST', 'Sparrow RASP',
     'Sparrow SAQT', 'Sparrow SecureHub', 'Sparrow Enterprise', 'Sparrow On-Demand',
     'Sparrow Cloud 일반기업용', 'Sparrow Cloud 공공기관용',
     '진단 서비스', '교육·트레이닝 서비스', '기타'
   ],
+  devLang: ['Java', 'Python', 'JavaScript', 'TypeScript', 'C', 'C++', 'C#', 'Go', 'Kotlin', 'Swift', 'Ruby', 'PHP', 'Rust', '기타'],
 }
 
 const FIELD_CONFIG = {
@@ -48,7 +49,7 @@ const initialForm = {
   inquiryType: '',
   products: [],
   industry: '', industryEtc: '', mainProduct: '',
-  devLang: '', devFramework: '',
+  devLang: [], devFramework: '',
   vcsTools: '', vcsEtc: '',
   ciTools: '', ciEtc: '',
   priorExperience: '',
@@ -104,6 +105,43 @@ function SectionHeader({ title, icon }) {
   )
 }
 
+function MultiSelectDropdown({ value, onChange, options }) {
+  const [open, setOpen] = useState(false)
+  const ref = React.useRef()
+
+  React.useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const toggle = (v) => {
+    if (value.includes(v)) onChange(value.filter(x => x !== v))
+    else onChange([...value, v])
+  }
+
+  const label = value.length === 0 ? '선택해주세요' : value.join(', ')
+
+  return (
+    <div className="multi-select-dropdown" ref={ref}>
+      <button type="button" className={`multi-select-trigger${open ? ' open' : ''}`} onClick={() => setOpen(v => !v)}>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: value.length === 0 ? '#aaa' : '#111' }}>
+          {label}
+        </span>
+      </button>
+      {open && (
+        <div className="multi-select-dropdown-list">
+          {options.map(o => (
+            <div key={o} className={`multi-option${value.includes(o) ? ' selected' : ''}`} onClick={() => toggle(o)}>
+              {o}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function App() {
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState({})
@@ -133,8 +171,7 @@ export default function App() {
       if (!form.mainProduct.trim()) e.mainProduct = '주요 서비스·제품을 입력해주세요'
     }
     if (has('techEnv') || has('devLang')) {
-      if (!form.devLang.trim()) e.devLang = '개발 언어를 입력해주세요'
-      if (!form.devFramework.trim()) e.devFramework = '프레임워크를 입력해주세요'
+      if (form.devLang.length === 0) e.devLang = '개발 언어를 선택해주세요'
     }
     if (has('techEnv')) {
       if (!form.vcsTools) e.vcsTools = '형상 관리 도구를 선택해주세요'
@@ -272,11 +309,11 @@ export default function App() {
           <section className="section">
             <SectionHeader title="기술 환경 정보" />
             <div className="grid-2">
-              <Field label="개발 언어" required hint="예: Java, Python, JavaScript" fieldKey="devLang">
-                <input className={`input${errors.devLang ? ' input-error' : ''}`} value={form.devLang} onChange={e => set('devLang', e.target.value)} placeholder="직접 입력" />
+              <Field label="개발 언어" required hint="예: Java, Python, JavaScript 등 복수 선택 가능"fieldKey="devLang">
+                <MultiSelectDropdown value={form.devLang} onChange={v => set('devLang', v)} options={SELECT_OPTIONS.devLang} />
                 {errors.devLang && <p className="error-msg">{errors.devLang}</p>}
               </Field>
-              <Field label="프레임워크" required hint="예: Spring, Django, React" fieldKey="devFramework">
+              <Field label="프레임워크" hint="예: Spring, Django, React, 모름" fieldKey="devFramework">
                 <input className={`input${errors.devFramework ? ' input-error' : ''}`} value={form.devFramework} onChange={e => set('devFramework', e.target.value)} placeholder="직접 입력" />
                 {errors.devFramework && <p className="error-msg">{errors.devFramework}</p>}
               </Field>
@@ -305,7 +342,7 @@ export default function App() {
                   <Select value={form.priorExperience} onChange={v => set('priorExperience', v)} options={SELECT_OPTIONS.priorExperience} />
                   {errors.priorExperience && <p className="error-msg">{errors.priorExperience}</p>}
                 </Field>
-                <Field label="도입 희망 시기" required fieldKey="timeline">
+                <Field label="도입 희망 시기" required hint="제품 도입 또는 프로젝트 시작 시기" fieldKey="timeline">
                   <Select value={form.timeline} onChange={v => set('timeline', v)} options={SELECT_OPTIONS.timeline} />
                   {errors.timeline && <p className="error-msg">{errors.timeline}</p>}
                 </Field>
