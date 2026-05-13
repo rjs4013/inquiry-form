@@ -63,7 +63,7 @@ function ProductCheckbox({ value, onChange }) {
     else onChange([...value, p])
   }
   const descriptions = {
-    SAST: '정적 분석 · 소스코드 보안 취약점 탐지',
+    SAST·SAQT: '정적 분석 · 소스코드 보안 취약점 및 품질 결함 탐지',
     DAST: '동적 분석 · 실행 중 애플리케이션 취약점 탐지',
     SCA: '오픈소스 컴포넌트 보안 및 라이선스 분석',
   }
