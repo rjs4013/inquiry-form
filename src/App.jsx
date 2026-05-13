@@ -9,7 +9,7 @@ const SELECT_OPTIONS = {
   ciTools: ['Jenkins', 'GitLab CI', 'GitHub Actions', 'CircleCI', 'TeamCity', 'Azure Pipelines', '기타(직접 입력)', '없음'],
   priorExperience: ['없음', 'Checkmarx', 'Veracode', 'SonarQube', 'Snyk', 'Fortify', '기타(직접 입력)'],
   timeline: ['즉시', '1~3개월 내', '3~6개월 내', '6개월 이후', '미정'],
-  products: ['SAST', 'DAST', 'SCA'],
+  products: ['SAST·SAQT', 'DAST', 'SCA'],
 }
 
 const initialForm = {
