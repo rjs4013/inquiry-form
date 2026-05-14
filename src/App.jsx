@@ -6,22 +6,21 @@ const SELECT_OPTIONS = {
   industry: ['IT/SaaS', '제조·물류', '금융·보험', '공공기관', '유통·커머스', '기타(직접 입력)'],
   vcsTools: ['없음', 'GitHub', 'GitLab', 'Bitbucket', 'SVN', '기타(직접 입력)'],
   ciTools: ['없음', 'Jenkins', 'GitLab CI', 'GitHub Actions', 'Azure Pipelines', '기타(직접 입력)'],
-  priorExperience: ['없음', '있음'],
   timeline: ['미정', '즉시', '1~3개월 내', '3~6개월 내', '6개월 이후'],
   products: [
-    'Sparrow SAST', 'Sparrow SCA', 'Sparrow DAST', 'Sparrow RASP',
-    'Sparrow SAQT', 'Sparrow SecureHub', 'Sparrow Enterprise', 'Sparrow On-Demand',
+    'Sparrow SAST', 'Sparrow SCA', 'Sparrow DAST',
+    'Sparrow SAQT', 'Sparrow SecureHub', 'Sparrow On-Demand',
     'Sparrow Cloud 일반기업용', 'Sparrow Cloud 공공기관용',
     '진단 서비스', '교육·트레이닝 서비스', '기타'
   ],
-  devLang: ['Java', 'Python', 'JavaScript', 'TypeScript', 'C', 'C++', 'C#', 'Go', 'Kotlin', 'Swift', 'Ruby', 'PHP', 'Rust', '기타'],
+  devLang: ['모름', 'Java', 'Python', 'JavaScript', 'TypeScript', 'C', 'C++', 'C#', 'Go', 'Kotlin', 'Swift', 'Ruby', 'PHP', 'Rust', '기타'],
 }
 
 const FIELD_CONFIG = {
-  '견적 및 도입 문의': ['companyInfo', 'techEnv', 'products', 'purpose'],
-  '유지보수 문의':     ['companyInfo', 'products', 'purpose'],
+  '견적 및 도입 문의': ['techEnv', 'products', 'purpose'],
+  '유지보수 문의':     ['products', 'purpose'],
   '기술지원 문의':     ['products', 'devLang', 'purpose'],
-  '마케팅 및 제휴 문의': ['companyInfo', 'purpose'],
+  '마케팅 및 제휴 문의': ['purpose'],
   '교육 문의':        ['products', 'purpose'],
   '기타':             ['purpose'],
 }
@@ -46,13 +45,13 @@ const PURPOSE_PLACEHOLDER = {
 
 const initialForm = {
   name: '', company: '', position: '', email: '', phone: '',
+  companyUrl: '', endUser: '', priorExperienceText: '',
   inquiryType: '',
   products: [],
   industry: '', industryEtc: '', mainProduct: '',
   devLang: [], devFramework: '',
   vcsTools: '', vcsEtc: '',
   ciTools: '', ciEtc: '',
-  priorExperience: '',
   timeline: '',
   purpose: '',
   agreeRequired: false, agreeMarketing: false,
@@ -165,11 +164,7 @@ export default function App() {
     if (!form.email.trim()) e.email = '이메일을 입력해주세요'
     else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = '올바른 이메일 형식을 입력해주세요'
     if (!form.phone.trim()) e.phone = '연락처를 입력해주세요'
-    if (has('companyInfo')) {
-      if (!form.industry) e.industry = '업종을 선택해주세요'
-      if (form.industry === '기타(직접 입력)' && !form.industryEtc.trim()) e.industryEtc = '업종을 직접 입력해주세요'
-      if (!form.mainProduct.trim()) e.mainProduct = '주요 서비스·제품을 입력해주세요'
-    }
+    if (!form.priorExperienceText.trim()) e.priorExperienceText = '유사 제품 사용 경험을 입력해주세요'
     if (has('techEnv') || has('devLang')) {
       if (form.devLang.length === 0) e.devLang = '개발 언어를 선택해주세요'
     }
@@ -265,40 +260,23 @@ export default function App() {
                 <input className={`input${errors.company ? ' input-error' : ''}`} value={form.company} onChange={e => set('company', e.target.value)} placeholder="(주)스패로우" />
                 {errors.company && <p className="error-msg">{errors.company}</p>}
               </Field>
-              <Field label="직책" required fieldKey="position">
-                <input className={`input${errors.position ? ' input-error' : ''}`} value={form.position} onChange={e => set('position', e.target.value)} placeholder="예: 개발팀장, 보안담당자, CISO" />
+              <Field label="회사 홈페이지" fieldKey="companyUrl">
+                <input className="input" value={form.companyUrl} onChange={e => set('companyUrl', e.target.value)} placeholder="https://sparrow.im" />
+              </Field>
+              <Field label="직급" required fieldKey="position">
+                <input className={`input${errors.position ? ' input-error' : ''}`} value={form.position} onChange={e => set('position', e.target.value)} placeholder="과장" />
                 {errors.position && <p className="error-msg">{errors.position}</p>}
               </Field>
               <Field label="이메일" required fieldKey="email">
-                <input className={`input${errors.email ? ' input-error' : ''}`} type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="example@company.com" />
+                <input className={`input${errors.email ? ' input-error' : ''}`} type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="example@sparrow.im" />
                 {errors.email && <p className="error-msg">{errors.email}</p>}
               </Field>
               <Field label="연락처" required fieldKey="phone">
                 <input className={`input${errors.phone ? ' input-error' : ''}`} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="010-0000-0000" />
                 {errors.phone && <p className="error-msg">{errors.phone}</p>}
               </Field>
-            </div>
-          </section>
-        )}
-
-        {/* 회사 정보 */}
-        {form.inquiryType && has('companyInfo') && (
-          <section className="section">
-            <SectionHeader title="회사 정보"/>
-            <div className="grid-2">
-              <Field label="업종" required fieldKey="industry">
-                <Select value={form.industry} onChange={v => set('industry', v)} options={SELECT_OPTIONS.industry} />
-                {errors.industry && <p className="error-msg">{errors.industry}</p>}
-                {form.industry === '기타(직접 입력)' && (
-                  <div style={{ marginTop: 8 }}>
-                    <input data-field="industryEtc" className={`input${errors.industryEtc ? ' input-error' : ''}`} value={form.industryEtc} onChange={e => set('industryEtc', e.target.value)} placeholder="업종을 직접 입력해주세요" />
-                    {errors.industryEtc && <p className="error-msg">{errors.industryEtc}</p>}
-                  </div>
-                )}
-              </Field>
-              <Field label="주요 서비스·제품" required fieldKey="mainProduct">
-                <input className={`input${errors.mainProduct ? ' input-error' : ''}`} value={form.mainProduct} onChange={e => set('mainProduct', e.target.value)} placeholder="예: 금융 앱, 사내 ERP 등" />
-                {errors.mainProduct && <p className="error-msg">{errors.mainProduct}</p>}
+              <Field label="최종 고객사 (엔드 유저)" required hint="담당 영업대표 배정에 활용" fieldKey="endUser">
+                <input className="input" value={form.endUser} onChange={e => set('endUser', e.target.value)} placeholder="직접 도입의 경우 '해당 없음' 으로 입력" />
               </Field>
             </div>
           </section>
@@ -338,9 +316,9 @@ export default function App() {
                     </div>
                   )}
                 </Field>
-                <Field label="유사 제품 사용 경험" required hint="현재 사용 중이거나 이전에 사용한 보안 분석 도구" fieldKey="priorExperience">
-                  <Select value={form.priorExperience} onChange={v => set('priorExperience', v)} options={SELECT_OPTIONS.priorExperience} />
-                  {errors.priorExperience && <p className="error-msg">{errors.priorExperience}</p>}
+                <Field label="유사 제품 사용 경험" required hint="현재 사용 중이거나 이전에 사용한 보안 분석 도구" fieldKey="priorExperienceText">
+                  <input className={`input${errors.priorExperienceText ? ' input-error' : ''}`} value={form.priorExperienceText} onChange={e => set('priorExperienceText', e.target.value)} placeholder="직접 입력" />
+                  {errors.priorExperienceText && <p className="error-msg">{errors.priorExperienceText}</p>}
                 </Field>
                 <Field label="도입 희망 시기" required hint="제품 도입 또는 프로젝트 시작 시기" fieldKey="timeline">
                   <Select value={form.timeline} onChange={v => set('timeline', v)} options={SELECT_OPTIONS.timeline} />
