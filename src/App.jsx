@@ -263,7 +263,7 @@ export default function App() {
               <Field label="회사 홈페이지" fieldKey="companyUrl">
                 <input className="input" value={form.companyUrl} onChange={e => set('companyUrl', e.target.value)} placeholder="https://sparrow.im" />
               </Field>
-              <Field label="직급" required fieldKey="position">
+              <Field label="직위" required fieldKey="position">
                 <input className={`input${errors.position ? ' input-error' : ''}`} value={form.position} onChange={e => set('position', e.target.value)} placeholder="과장" />
                 {errors.position && <p className="error-msg">{errors.position}</p>}
               </Field>
